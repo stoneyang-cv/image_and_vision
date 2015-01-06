@@ -1,0 +1,9 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+
+PROJECT(img_display)
+
+FIND_PACKAGE(OpenCV REQUIRED)
+# INCLUDE(${OpenCV_USE_FILE})
+
+ADD_EXECUTABLE(img_display img_display.cxx)
+TARGET_LINK_LIBRARIES(img_display ${OpenCV_LIBS})
