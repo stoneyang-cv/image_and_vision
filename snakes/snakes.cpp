@@ -3,6 +3,7 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/video/background_segm.hpp>
 
 int main( int argc, char** argv )
 {
@@ -31,6 +32,12 @@ int main( int argc, char** argv )
     cv::Mat grayscaleFrame;
     cv::namedWindow( "Grayscale Frame" );
 
+    // declare variables for background subtractor
+    cv::Mat bgFgFrame, bgBgFrame;
+    cv::BackgroundSubtractorMOG bgSubtractor( 20, 10, 0.5, false); 
+    cv::namedWindow( "Foreground Frame" );
+    //cv::namedWindow( "Background Frame" );
+
     // ergo each frame
     while ( !stop ) {
         // try to read the next frame
@@ -38,9 +45,14 @@ int main( int argc, char** argv )
             break;
 
         cvtColor( frame, grayscaleFrame, CV_RGB2GRAY );
-
+        
+        bgSubtractor( frame, bgFgFrame, 0.001);
+        bgSubtractor.getBackgroundImage( bgBgFrame );
+        
         cv::imshow( "Extracted Frame", frame );
         cv::imshow( "Grayscale Frame", grayscaleFrame );
+        cv::imshow( "Foreground Frame", bgFgFrame );
+        //cv::imshow( "Background Frame", bgBgFrame );
         // introduce the delay
         // also can be stopped by clicking the keyboard
         if ( cv::waitKey( delay ) >= 0 )
