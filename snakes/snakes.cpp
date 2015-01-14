@@ -2,6 +2,7 @@
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 
 int main( int argc, char** argv )
 {
@@ -25,12 +26,21 @@ int main( int argc, char** argv )
     // delay on each frame
     // corresponding to the rate
     int delay = 1000 / rate;
+
+    // declare variables
+    cv::Mat grayscaleFrame;
+    cv::namedWindow( "Grayscale Frame" );
+
     // ergo each frame
     while ( !stop ) {
         // try to read the next frame
         if ( !capture.read( frame ) )
             break;
+
+        cvtColor( frame, grayscaleFrame, CV_RGB2GRAY );
+
         cv::imshow( "Extracted Frame", frame );
+        cv::imshow( "Grayscale Frame", grayscaleFrame );
         // introduce the delay
         // also can be stopped by clicking the keyboard
         if ( cv::waitKey( delay ) >= 0 )
