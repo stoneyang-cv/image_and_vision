@@ -28,6 +28,10 @@ int main( int argc, char** argv )
     // corresponding to the rate
     int delay = 1000 / rate;
 
+    // declare variables for smoothing
+    cv::Mat blurFrame;
+    cv::namedWindow( "Smoothed Frame" );
+
     // declare variables for grayscale conversion
     //cv::Mat grayscaleFrame;
     //cv::namedWindow( "Grayscale Frame" );
@@ -54,9 +58,14 @@ int main( int argc, char** argv )
         if ( !capture.read( frame ) )
             break;
 
+        for ( int i = 1; i < 7; i = i + 2 ) { 
+            cv::GaussianBlur( frame, blurFrame, cv::Size( i, i ), 0, 0 );
+        }
+        cv::imshow( "Smoothed Frame", blurFrame );
+
         //cvtColor( frame, grayscaleFrame, CV_RGB2GRAY );
  
-        bgSubtractor( frame, bgFgFrame, 0.001);
+        bgSubtractor( blurFrame, bgFgFrame, 0.001);
         bgSubtractor.getBackgroundImage( bgBgFrame );
         
         cv::threshold( bgFgFrame, thFrame, 240, 255, CV_THRESH_BINARY );
