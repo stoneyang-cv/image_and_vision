@@ -29,8 +29,8 @@ int main( int argc, char** argv )
     int delay = 1000 / rate;
 
     // declare variables for grayscale conversion
-    cv::Mat grayscaleFrame;
-    cv::namedWindow( "Grayscale Frame" );
+    //cv::Mat grayscaleFrame;
+    //cv::namedWindow( "Grayscale Frame" );
 
     // declare variables for binary thresholding
     cv::Mat thFrame;
@@ -54,21 +54,21 @@ int main( int argc, char** argv )
         if ( !capture.read( frame ) )
             break;
 
-        cvtColor( frame, grayscaleFrame, CV_RGB2GRAY );
+        //cvtColor( frame, grayscaleFrame, CV_RGB2GRAY );
  
         bgSubtractor( frame, bgFgFrame, 0.001);
         bgSubtractor.getBackgroundImage( bgBgFrame );
         
-        //cv::threshold( bgFgFrame, thFrame, 240, 255, CV_THRESH_BINARY );
-        //cv::erode( bgFgFrame, erodeFrame, cv::Mat() );
-        cv::dilate( bgFgFrame, dilateFrame, cv::Mat() );
+        cv::threshold( bgFgFrame, thFrame, 240, 255, CV_THRESH_BINARY );
+        cv::erode( bgFgFrame, erodeFrame, cv::Mat() );
+        cv::dilate( erodeFrame, dilateFrame, cv::Mat() );
         
         cv::imshow( "Extracted Frame", frame );
-        cv::imshow( "Grayscale Frame", grayscaleFrame );
-        //cv::imshow( "Thresholded Frame", thFrame );
+        //cv::imshow( "Grayscale Frame", grayscaleFrame );
+        cv::imshow( "Thresholded Frame", thFrame );
         cv::imshow( "Foreground Frame", bgFgFrame );
         cv::imshow( "Background Frame", bgBgFrame );
-        //cv::imshow( "Eroded Frame", erodeFrame );
+        cv::imshow( "Eroded Frame", erodeFrame );
         cv::imshow( "Dilated Frame", dilateFrame );
         // introduce the delay
         // also can be stopped by clicking the keyboard
