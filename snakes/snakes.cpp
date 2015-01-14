@@ -61,8 +61,7 @@ int main( int argc, char** argv )
         for ( int i = 1; i < 7; i = i + 2 ) { 
             cv::GaussianBlur( frame, blurFrame, cv::Size( i, i ), 0, 0 );
         }
-        cv::imshow( "Smoothed Frame", blurFrame );
-
+        
         //cvtColor( frame, grayscaleFrame, CV_RGB2GRAY );
  
         bgSubtractor( blurFrame, bgFgFrame, 0.001);
@@ -73,6 +72,7 @@ int main( int argc, char** argv )
         cv::dilate( erodeFrame, dilateFrame, cv::Mat() );
         
         cv::imshow( "Extracted Frame", frame );
+        cv::imshow( "Smoothed Frame", blurFrame );
         //cv::imshow( "Grayscale Frame", grayscaleFrame );
         cv::imshow( "Thresholded Frame", thFrame );
         cv::imshow( "Foreground Frame", bgFgFrame );
