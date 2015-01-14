@@ -32,12 +32,16 @@ int main( int argc, char** argv )
     cv::Mat grayscaleFrame;
     cv::namedWindow( "Grayscale Frame" );
 
+    // declare variables for binary thresholding
+    cv::Mat thFrame;
+    cv::namedWindow( "Thresholded Frame" );
+
     // declare variables for background subtractor
     cv::Mat bgFgFrame, bgBgFrame;
-    cv::BackgroundSubtractorMOG bgSubtractor( 20, 10, 0.5, false); 
-    //cv::BackgroundSubtractorMOG2 bgSubtractor( 20, 16, true );
+    //cv::BackgroundSubtractorMOG bgSubtractor( 20, 10, 0.5, false); 
+    cv::BackgroundSubtractorMOG2 bgSubtractor( 20, 16, true );
     cv::namedWindow( "Foreground Frame" );
-    //cv::namedWindow( "Background Frame" );
+    cv::namedWindow( "Background Frame" );
 
     // declare variables for erosion and dilation
     cv::Mat erodeFrame, dilateFrame;
@@ -51,18 +55,20 @@ int main( int argc, char** argv )
             break;
 
         cvtColor( frame, grayscaleFrame, CV_RGB2GRAY );
+ 
+        bgSubtractor( frame, bgFgFrame, 0.001);
+        bgSubtractor.getBackgroundImage( bgBgFrame );
         
-        bgSubtractor( grayscaleFrame, bgFgFrame, 0.001);
-        //bgSubtractor.getBackgroundImage( bgBgFrame );
-
-        cv::erode( bgFgFrame, erodeFrame, cv::Mat() );
-        cv::dilate( erodeFrame, dilateFrame, cv::Mat() );
+        //cv::threshold( bgFgFrame, thFrame, 240, 255, CV_THRESH_BINARY );
+        //cv::erode( bgFgFrame, erodeFrame, cv::Mat() );
+        cv::dilate( bgFgFrame, dilateFrame, cv::Mat() );
         
         cv::imshow( "Extracted Frame", frame );
         cv::imshow( "Grayscale Frame", grayscaleFrame );
+        //cv::imshow( "Thresholded Frame", thFrame );
         cv::imshow( "Foreground Frame", bgFgFrame );
-        //cv::imshow( "Background Frame", bgBgFrame );
-        cv::imshow( "Eroded Frame", erodeFrame );
+        cv::imshow( "Background Frame", bgBgFrame );
+        //cv::imshow( "Eroded Frame", erodeFrame );
         cv::imshow( "Dilated Frame", dilateFrame );
         // introduce the delay
         // also can be stopped by clicking the keyboard
