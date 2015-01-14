@@ -27,7 +27,7 @@ int main( int argc, char** argv )
     // corresponding to the rate
     int delay = 1000 / rate;
 
-    // declare variables
+    // declare variables for grayscale conversion
     cv::Mat grayscaleFrame;
     cv::namedWindow( "Grayscale Frame" );
 
