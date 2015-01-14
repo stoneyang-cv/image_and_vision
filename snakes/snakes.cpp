@@ -40,7 +40,9 @@ int main( int argc, char** argv )
     //cv::namedWindow( "Background Frame" );
 
     // declare variables for erosion and dilation
+    cv::Mat erodeFrame, dilateFrame;
     cv::namedWindow( "Eroded Frame" );
+    cv::namedWindow( "Dilated Frame" );
 
     // ergo each frame
     while ( !stop ) {
@@ -53,13 +55,15 @@ int main( int argc, char** argv )
         bgSubtractor( grayscaleFrame, bgFgFrame, 0.001);
         //bgSubtractor.getBackgroundImage( bgBgFrame );
 
-        cv::erode( bgFgFrame, bgFgFrame, cv::Mat() );
+        cv::erode( bgFgFrame, erodeFrame, cv::Mat() );
+        cv::dilate( erodeFrame, dilateFrame, cv::Mat() );
         
         cv::imshow( "Extracted Frame", frame );
         cv::imshow( "Grayscale Frame", grayscaleFrame );
         cv::imshow( "Foreground Frame", bgFgFrame );
         //cv::imshow( "Background Frame", bgBgFrame );
-        cv::imshow( "Eroded Frame", bgFgFrame );
+        cv::imshow( "Eroded Frame", erodeFrame );
+        cv::imshow( "Dilated Frame", dilateFrame );
         // introduce the delay
         // also can be stopped by clicking the keyboard
         if ( cv::waitKey( delay ) >= 0 )
