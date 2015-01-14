@@ -35,6 +35,7 @@ int main( int argc, char** argv )
     // declare variables for background subtractor
     cv::Mat bgFgFrame, bgBgFrame;
     cv::BackgroundSubtractorMOG bgSubtractor( 20, 10, 0.5, false); 
+    //cv::BackgroundSubtractorMOG2 bgSubtractor( 20, 16, true );
     cv::namedWindow( "Foreground Frame" );
     //cv::namedWindow( "Background Frame" );
 
@@ -46,7 +47,7 @@ int main( int argc, char** argv )
 
         cvtColor( frame, grayscaleFrame, CV_RGB2GRAY );
         
-        bgSubtractor( frame, bgFgFrame, 0.001);
+        bgSubtractor( grayscaleFrame, bgFgFrame, 0.001);
         bgSubtractor.getBackgroundImage( bgBgFrame );
         
         cv::imshow( "Extracted Frame", frame );
