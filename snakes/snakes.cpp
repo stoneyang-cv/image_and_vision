@@ -57,11 +57,16 @@ int main( int argc, char** argv )
         // try to read the next frame
         if ( !capture.read( frame ) )
             break;
-
+/*
         for ( int i = 1; i < 7; i = i + 2 ) { 
             cv::GaussianBlur( frame, blurFrame, cv::Size( i, i ), 0, 0 );
         }
-        
+*/
+        cv::GaussianBlur( frame, blurFrame, cv::Size( 5, 5 ), 0, 0 );
+        //cv::medianBlur( frame, blurFrame, 3 );
+        //cv::bilateralFilter( frame, blurFrame, 3, 2, 5 );
+        //cv::adaptiveBilateralFilter( frame, blurFrame, cv::Size( 3, 3 ), 5 );
+
         //cvtColor( frame, grayscaleFrame, CV_RGB2GRAY );
  
         bgSubtractor( blurFrame, bgFgFrame, 0.001);
