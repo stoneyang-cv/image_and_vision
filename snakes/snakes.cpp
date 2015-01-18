@@ -73,7 +73,7 @@ int main( int argc, char** argv )
         }
 */
         //cv::GaussianBlur( frame, blurFrame, cv::Size( 5, 5 ), 0, 0 );
-        cv::medianBlur( frame, blurFrame, 3 );
+        cv::medianBlur( frame, blurFrame, 5 );
         //cv::bilateralFilter( frame, blurFrame, 3, 2, 5 );
         //cv::adaptiveBilateralFilter( frame, blurFrame, cv::Size( 3, 3 ), 5 );
 
@@ -103,7 +103,8 @@ int main( int argc, char** argv )
         /// Draw polygonal contour + bonding rects + circles
         cv::Mat drawing = cv::Mat::zeros( dilateFrame.size(), CV_8UC3 );
         for ( int i = 0; i < contours.size(); i++ ) {
-            cv::Scalar color = cv::Scalar( rng.uniform( 0, 255 ), rng.uniform( 0, 255 ), rng.uniform( 0, 255 ) );
+            //cv::Scalar color = cv::Scalar( rng.uniform( 0, 255 ), rng.uniform( 0, 255 ), rng.uniform( 0, 255 ) );
+            cv::Scalar color( 0, 230, 0 );
             //cv::drawContours( drawing, contours_poly, i, color, 1, 8, std::vector< cv::Vec4i >(), 0, cv::Point() );
             cv::rectangle( drawing, boundRect[i].tl(), boundRect[i].br(), color, 2, 8, 0 );
             //cv::circle( drawing, center[i], ( int ) radius[i], color, 2, 8, 0 );
