@@ -52,6 +52,12 @@ int main( int argc, char** argv )
     cv::namedWindow( "Eroded Frame" );
     cv::namedWindow( "Dilated Frame" );
 
+    // declare variables for bounding box
+    cv::RNG rng( 12345 );
+    std::vector< std::vector< cv::Point > > contours;
+    std::vector< cv::Vec4i > hierarchy;
+    cv::namedWindow( "Contours Frame" );
+
     // ergo each frame
     while ( !stop ) {
         // try to read the next frame
@@ -75,6 +81,29 @@ int main( int argc, char** argv )
         //cv::threshold( bgFgFrame, thFrame, 240, 255, CV_THRESH_BINARY );
         cv::erode( bgFgFrame, erodeFrame, cv::Mat() );
         cv::dilate( erodeFrame, dilateFrame, cv::Mat() );
+
+        cv::findContours( dilateFrame, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, cv::Point( 0, 0 ) );
+
+        /// Approximate contours to polygons + get bounding rects and circles
+        std::vector< std::vector< cv::Point > > contours_poly( contours.size() );
+        std::vector< cv::Rect > boundRect( contours.size() );
+        std::vector< cv::Point2f > center( contours.size() );
+        std::vector< float > radius( contours.size() );
+
+        for ( int i = 0; i < contours.size(); i++ ) { 
+            cv::approxPolyDP( cv::Mat( contours[i] ), contours_poly[i], 3, true );
+            boundRect[i] = cv::boundingRect( cv::Mat( contours_poly[i] ) );
+            cv::minEnclosingCircle( (cv::Mat) contours_poly[i], center[i], radius[i] );
+        }
+
+        /// Draw polygonal contour + bonding rects + circles
+        cv::Mat drawing = cv::Mat::zeros( dilateFrame.size(), CV_8UC3 );
+        for ( int i = 0; i < contours.size(); i++ ) {
+            cv::Scalar color = cv::Scalar( rng.uniform( 0, 255 ), rng.uniform( 0, 255 ), rng.uniform( 0, 255 ) );
+            //cv::drawContours( drawing, contours_poly, i, color, 1, 8, std::vector< cv::Vec4i >(), 0, cv::Point() );
+            cv::rectangle( drawing, boundRect[i].tl(), boundRect[i].br(), color, 2, 8, 0 );
+            //cv::circle( drawing, center[i], ( int ) radius[i], color, 2, 8, 0 );
+        }
         
         cv::imshow( "Extracted Frame", frame );
         cv::imshow( "Smoothed Frame", blurFrame );
@@ -84,6 +113,7 @@ int main( int argc, char** argv )
         cv::imshow( "Background Frame", bgBgFrame );
         cv::imshow( "Eroded Frame", erodeFrame );
         cv::imshow( "Dilated Frame", dilateFrame );
+        cv::imshow( "Contours Frame", drawing );
         // introduce the delay
         // also can be stopped by clicking the keyboard
         //if ( cv::waitKey( delay ) >= 0 )
