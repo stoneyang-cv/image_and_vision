@@ -58,6 +58,10 @@ int main( int argc, char** argv )
     std::vector< cv::Vec4i > hierarchy;
     cv::namedWindow( "Contours Frame" );
 
+    // declare variables for overlay contours and raw frames
+    cv::Mat overlayFrame;
+    cv::namedWindow( "Overlayed Frame" );
+
     // ergo each frame
     while ( !stop ) {
         // try to read the next frame
@@ -104,6 +108,9 @@ int main( int argc, char** argv )
             cv::rectangle( drawing, boundRect[i].tl(), boundRect[i].br(), color, 2, 8, 0 );
             //cv::circle( drawing, center[i], ( int ) radius[i], color, 2, 8, 0 );
         }
+
+        // overlay
+        cv::add( frame, drawing, overlayFrame );
         
         cv::imshow( "Extracted Frame", frame );
         cv::imshow( "Smoothed Frame", blurFrame );
@@ -114,6 +121,7 @@ int main( int argc, char** argv )
         cv::imshow( "Eroded Frame", erodeFrame );
         cv::imshow( "Dilated Frame", dilateFrame );
         cv::imshow( "Contours Frame", drawing );
+        cv::imshow( "Overlayed Frame", overlayFrame );
         // introduce the delay
         // also can be stopped by clicking the keyboard
         //if ( cv::waitKey( delay ) >= 0 )
