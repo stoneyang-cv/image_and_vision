@@ -26,7 +26,7 @@ int main( int argc, char** argv )
     cv::namedWindow( "Extracted Frame" );
     // delay on each frame
     // corresponding to the rate
-    int delay = 1000 / rate;
+    //int delay = 1000 / rate;
 
     // declare variables for smoothing
     cv::Mat blurFrame;
@@ -37,8 +37,8 @@ int main( int argc, char** argv )
     //cv::namedWindow( "Grayscale Frame" );
 
     // declare variables for binary thresholding
-    cv::Mat thFrame;
-    cv::namedWindow( "Thresholded Frame" );
+    //cv::Mat thFrame;
+    //cv::namedWindow( "Thresholded Frame" );
 
     // declare variables for background subtractor
     cv::Mat bgFgFrame, bgBgFrame;
@@ -62,8 +62,8 @@ int main( int argc, char** argv )
             cv::GaussianBlur( frame, blurFrame, cv::Size( i, i ), 0, 0 );
         }
 */
-        cv::GaussianBlur( frame, blurFrame, cv::Size( 5, 5 ), 0, 0 );
-        //cv::medianBlur( frame, blurFrame, 3 );
+        //cv::GaussianBlur( frame, blurFrame, cv::Size( 5, 5 ), 0, 0 );
+        cv::medianBlur( frame, blurFrame, 3 );
         //cv::bilateralFilter( frame, blurFrame, 3, 2, 5 );
         //cv::adaptiveBilateralFilter( frame, blurFrame, cv::Size( 3, 3 ), 5 );
 
@@ -72,21 +72,24 @@ int main( int argc, char** argv )
         bgSubtractor( blurFrame, bgFgFrame, 0.001);
         bgSubtractor.getBackgroundImage( bgBgFrame );
         
-        cv::threshold( bgFgFrame, thFrame, 240, 255, CV_THRESH_BINARY );
+        //cv::threshold( bgFgFrame, thFrame, 240, 255, CV_THRESH_BINARY );
         cv::erode( bgFgFrame, erodeFrame, cv::Mat() );
         cv::dilate( erodeFrame, dilateFrame, cv::Mat() );
         
         cv::imshow( "Extracted Frame", frame );
         cv::imshow( "Smoothed Frame", blurFrame );
         //cv::imshow( "Grayscale Frame", grayscaleFrame );
-        cv::imshow( "Thresholded Frame", thFrame );
+        //cv::imshow( "Thresholded Frame", thFrame );
         cv::imshow( "Foreground Frame", bgFgFrame );
         cv::imshow( "Background Frame", bgBgFrame );
         cv::imshow( "Eroded Frame", erodeFrame );
         cv::imshow( "Dilated Frame", dilateFrame );
         // introduce the delay
         // also can be stopped by clicking the keyboard
-        if ( cv::waitKey( delay ) >= 0 )
+        //if ( cv::waitKey( delay ) >= 0 )
+        //    stop = true;
+        char keyPress = cv::waitKey( 20 );
+        if ( keyPress == 27 )
             stop = true;
     }
     // close the video
