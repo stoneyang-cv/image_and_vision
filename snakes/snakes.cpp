@@ -43,12 +43,16 @@ int main( int argc, char** argv )
     // declare variables for background subtractor
     cv::Mat bgFgFrame, bgBgFrame;
     //cv::BackgroundSubtractorMOG bgSubtractor( 20, 10, 0.5, false); 
-    cv::BackgroundSubtractorMOG2 bgSubtractor( 20, 16, true );
+    cv::BackgroundSubtractorMOG2 bgSubtractor( 20, 16, false );
     cv::namedWindow( "Foreground Frame" );
     cv::namedWindow( "Background Frame" );
 
     // declare variables for erosion and dilation
     cv::Mat erodeFrame, dilateFrame;
+    int morph_elem = 0;
+    int morph_size = 0;
+    int morph_operator = 0;
+    cv::Mat element = cv::getStructuringElement( morph_elem, cv::Size( 2*morph_size + 1, 2*morph_size+1 ), cv::Point( morph_size, morph_size ) );
     cv::namedWindow( "Eroded Frame" );
     cv::namedWindow( "Dilated Frame" );
 
@@ -83,8 +87,8 @@ int main( int argc, char** argv )
         bgSubtractor.getBackgroundImage( bgBgFrame );
         
         //cv::threshold( bgFgFrame, thFrame, 240, 255, CV_THRESH_BINARY );
-        cv::erode( bgFgFrame, erodeFrame, cv::Mat() );
-        cv::dilate( erodeFrame, dilateFrame, cv::Mat() );
+        cv::erode( bgFgFrame, erodeFrame, element );
+        cv::dilate( erodeFrame, dilateFrame, element );
 
         cv::findContours( dilateFrame, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, cv::Point( 0, 0 ) );
 
