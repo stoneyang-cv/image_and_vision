@@ -19,78 +19,74 @@ int main( int argc, char** argv )
     if ( !capture.isOpened() )
         return 1;
 
-    // obtain frame rate
-    double rate = capture.get( CV_CAP_PROP_FPS );
     bool stop = false;
     cv::Mat frame; // current frame
-    cv::namedWindow( "Extracted Frame" );
-    // delay on each frame
-    // corresponding to the rate
-    //int delay = 1000 / rate;
+    cv::Mat resizedFrame;
 
     // declare variables for smoothing
-    cv::Mat blurFrame;
-    cv::namedWindow( "Smoothed Frame" );
-
-    // declare variables for grayscale conversion
-    //cv::Mat grayscaleFrame;
-    //cv::namedWindow( "Grayscale Frame" );
-
-    // declare variables for binary thresholding
-    //cv::Mat thFrame;
-    //cv::namedWindow( "Thresholded Frame" );
+    cv::Mat medianFrame;
 
     // declare variables for background subtractor
     cv::Mat bgFgFrame, bgBgFrame;
     //cv::BackgroundSubtractorMOG bgSubtractor( 20, 10, 0.5, false); 
-    cv::BackgroundSubtractorMOG2 bgSubtractor( 20, 16, false );
-    cv::namedWindow( "Foreground Frame" );
-    cv::namedWindow( "Background Frame" );
-
+    cv::BackgroundSubtractorMOG2 bgSubtractor( 20, 16, true );
+    
+    cv::Mat thresFrame;
+    
+    cv::Mat medianFrame2;
+    
     // declare variables for erosion and dilation
     cv::Mat erodeFrame, dilateFrame;
     int morph_elem = 0;
-    int morph_size = 0;
-    int morph_operator = 0;
-    cv::Mat element = cv::getStructuringElement( morph_elem, cv::Size( 2*morph_size + 1, 2*morph_size+1 ), cv::Point( morph_size, morph_size ) );
-    cv::namedWindow( "Eroded Frame" );
-    cv::namedWindow( "Dilated Frame" );
+    int dilate_size = 3;
+    int erode_size = 1;
+    cv::Mat dilateElement = cv::getStructuringElement( morph_elem, cv::Size( 2 * dilate_size + 1, 2 * dilate_size + 1 ), cv::Point( dilate_size, dilate_size ) );
+    cv::Mat erodeElement = cv::getStructuringElement( morph_elem, cv::Size( 2 * erode_size + 1, 2 * erode_size + 1 ), cv::Point( erode_size, erode_size ) );
+    cv::Mat copiedFrame;  
 
     // declare variables for bounding box
     cv::RNG rng( 12345 );
     std::vector< std::vector< cv::Point > > contours;
     std::vector< cv::Vec4i > hierarchy;
-    cv::namedWindow( "Contours Frame" );
-
+        
     // declare variables for overlay contours and raw frames
     cv::Mat overlayFrame;
-    cv::namedWindow( "Overlayed Frame" );
-
+    
     // ergo each frame
     while ( !stop ) {
         // try to read the next frame
         if ( !capture.read( frame ) )
             break;
-/*
-        for ( int i = 1; i < 7; i = i + 2 ) { 
-            cv::GaussianBlur( frame, blurFrame, cv::Size( i, i ), 0, 0 );
-        }
-*/
-        //cv::GaussianBlur( frame, blurFrame, cv::Size( 5, 5 ), 0, 0 );
-        cv::medianBlur( frame, blurFrame, 5 );
-        //cv::bilateralFilter( frame, blurFrame, 3, 2, 5 );
-        //cv::adaptiveBilateralFilter( frame, blurFrame, cv::Size( 3, 3 ), 5 );
+        cv::imshow( "Extracted Frame", frame );
 
-        //cvtColor( frame, grayscaleFrame, CV_RGB2GRAY );
- 
-        bgSubtractor( blurFrame, bgFgFrame, 0.001);
+        cv::resize( frame, resizedFrame, cv::Size( 352, 288 ) );
+        cv::imshow( "Resized Frame", resizedFrame );
+
+        cv::medianBlur( resizedFrame, medianFrame, 3 );
+        cv::imshow( "Median Frame", medianFrame );
+
+        bgSubtractor( medianFrame, bgFgFrame, 0.001);
         bgSubtractor.getBackgroundImage( bgBgFrame );
-        
-        //cv::threshold( bgFgFrame, thFrame, 240, 255, CV_THRESH_BINARY );
-        cv::erode( bgFgFrame, erodeFrame, element );
-        cv::dilate( erodeFrame, dilateFrame, element );
+        cv::imshow( "Foreground Frame", bgFgFrame );
+        cv::imshow( "Background Frame", bgBgFrame );
 
-        cv::findContours( dilateFrame, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, cv::Point( 0, 0 ) );
+        cv::threshold( bgFgFrame, thresFrame, 128, 255, CV_THRESH_BINARY );
+        cv::imshow( "Thresholded Frame", thresFrame ); 
+
+        cv::medianBlur( thresFrame, medianFrame2, 5 );
+        cv::imshow( "Median Frame 2", medianFrame2 ); 
+
+        cv::erode( medianFrame2, erodeFrame, erodeElement );
+        cv::dilate( erodeFrame, dilateFrame, dilateElement );
+        cv::imshow( "Eroded Frame", erodeFrame );         
+        cv::imshow( "Dilated Frame", dilateFrame );
+     
+        dilateFrame.copyTo( copiedFrame );
+        //erodedresize.copyTo( copiedFrame );
+
+        cv::Mat copiedResize = cv::Mat::zeros( frame.size(), CV_8UC3 );
+        cv::resize( copiedFrame, copiedResize, frame.size() );
+        cv::findContours( copiedResize, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, cv::Point( 0, 0 ) );
 
         /// Approximate contours to polygons + get bounding rects and circles
         std::vector< std::vector< cv::Point > > contours_poly( contours.size() );
@@ -105,32 +101,20 @@ int main( int argc, char** argv )
         }
 
         /// Draw polygonal contour + bonding rects + circles
-        cv::Mat drawing = cv::Mat::zeros( dilateFrame.size(), CV_8UC3 );
+        cv::Mat drawing = cv::Mat::zeros( frame.size(), CV_8UC3 );     
         for ( int i = 0; i < contours.size(); i++ ) {
             //cv::Scalar color = cv::Scalar( rng.uniform( 0, 255 ), rng.uniform( 0, 255 ), rng.uniform( 0, 255 ) );
-            cv::Scalar color( 0, 230, 0 );
+            cv::Scalar color( 0, 200, 0 );
             //cv::drawContours( drawing, contours_poly, i, color, 1, 8, std::vector< cv::Vec4i >(), 0, cv::Point() );
             cv::rectangle( drawing, boundRect[i].tl(), boundRect[i].br(), color, 2, 8, 0 );
             //cv::circle( drawing, center[i], ( int ) radius[i], color, 2, 8, 0 );
         }
+        cv::imshow( "Contours Frame", drawing );
 
         // overlay
-        cv::add( frame, drawing, overlayFrame );
-        
-        cv::imshow( "Extracted Frame", frame );
-        cv::imshow( "Smoothed Frame", blurFrame );
-        //cv::imshow( "Grayscale Frame", grayscaleFrame );
-        //cv::imshow( "Thresholded Frame", thFrame );
-        cv::imshow( "Foreground Frame", bgFgFrame );
-        cv::imshow( "Background Frame", bgBgFrame );
-        cv::imshow( "Eroded Frame", erodeFrame );
-        cv::imshow( "Dilated Frame", dilateFrame );
-        cv::imshow( "Contours Frame", drawing );
+        cv::addWeighted( frame, 1.0, drawing, 1.0, 0.9, overlayFrame );
         cv::imshow( "Overlayed Frame", overlayFrame );
-        // introduce the delay
-        // also can be stopped by clicking the keyboard
-        //if ( cv::waitKey( delay ) >= 0 )
-        //    stop = true;
+        
         char keyPress = cv::waitKey( 20 );
         if ( keyPress == 27 )
             stop = true;
