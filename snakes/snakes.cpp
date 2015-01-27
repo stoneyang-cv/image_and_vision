@@ -36,13 +36,19 @@ int main( int argc, char** argv )
     cv::Mat medianFrame2;
     
     // declare variables for erosion and dilation
-    cv::Mat erodeFrame, dilateFrame;
-    int morph_elem = 0;
-    int dilate_size = 3;
-    int erode_size = 1;
-    cv::Mat dilateElement = cv::getStructuringElement( morph_elem, cv::Size( 2 * dilate_size + 1, 2 * dilate_size + 1 ), cv::Point( dilate_size, dilate_size ) );
-    cv::Mat erodeElement = cv::getStructuringElement( morph_elem, cv::Size( 2 * erode_size + 1, 2 * erode_size + 1 ), cv::Point( erode_size, erode_size ) );
+    //cv::Mat erodeFrame, dilateFrame;
+    //int morph_elem = 0;
+    //int dilate_size = 3;
+    //int erode_size = 1;
+    //cv::Mat dilateElement = cv::getStructuringElement( morph_elem, cv::Size( 2 * dilate_size + 1, 2 * dilate_size + 1 ), cv::Point( dilate_size, dilate_size ) );
+    //cv::Mat erodeElement = cv::getStructuringElement( morph_elem, cv::Size( 2 * erode_size + 1, 2 * erode_size + 1 ), cv::Point( erode_size, erode_size ) );
     cv::Mat copiedFrame;  
+
+    // declare variables for pyramid
+    cv::Mat pyrDwn, dilate, pyrUp;
+    int morph_elem = 0;
+    int dilate_size = 1;
+    cv::Mat dilate_elem = cv::getStructuringElement( morph_elem, cv::Size( 2 * dilate_size + 1, 2 * dilate_size + 1 ), cv::Point( dilate_size, dilate_size ) );
 
     // declare variables for bounding box
     cv::RNG rng( 12345 );
@@ -76,13 +82,21 @@ int main( int argc, char** argv )
         cv::medianBlur( thresFrame, medianFrame2, 5 );
         cv::imshow( "Median Frame 2", medianFrame2 ); 
 
-        cv::erode( medianFrame2, erodeFrame, erodeElement );
-        cv::dilate( erodeFrame, dilateFrame, dilateElement );
-        cv::imshow( "Eroded Frame", erodeFrame );         
-        cv::imshow( "Dilated Frame", dilateFrame );
+        //cv::erode( medianFrame2, erodeFrame, erodeElement );
+        //cv::dilate( erodeFrame, dilateFrame, dilateElement );
+        //cv::imshow( "Eroded Frame", erodeFrame );         
+        //cv::imshow( "Dilated Frame", dilateFrame );
+
+        cv::pyrDown( medianFrame2, pyrDwn );
+        cv::dilate( pyrDwn, dilate, dilate_elem );
+        cv::pyrUp( dilate, pyrUp );
+        cv::imshow( "PyrDwn Frame", pyrDwn );
+        cv::imshow( "Dilated Frame", dilate );
+        cv::imshow( "PyrUp Frame", pyrUp );
      
-        dilateFrame.copyTo( copiedFrame );
+        //dilateFrame.copyTo( copiedFrame );
         //erodedresize.copyTo( copiedFrame );
+        pyrUp.copyTo( copiedFrame );
 
         cv::Mat copiedResize = cv::Mat::zeros( frame.size(), CV_8UC3 );
         cv::resize( copiedFrame, copiedResize, frame.size() );
@@ -106,7 +120,8 @@ int main( int argc, char** argv )
             //cv::Scalar color = cv::Scalar( rng.uniform( 0, 255 ), rng.uniform( 0, 255 ), rng.uniform( 0, 255 ) );
             cv::Scalar color( 0, 200, 0 );
             //cv::drawContours( drawing, contours_poly, i, color, 1, 8, std::vector< cv::Vec4i >(), 0, cv::Point() );
-            cv::rectangle( drawing, boundRect[i].tl(), boundRect[i].br(), color, 2, 8, 0 );
+            if ( boundRect[i].height * boundRect[i].width > 16 )
+                cv::rectangle( drawing, boundRect[i].tl(), boundRect[i].br(), color, 2, 8, 0 );
             //cv::circle( drawing, center[i], ( int ) radius[i], color, 2, 8, 0 );
         }
         cv::imshow( "Contours Frame", drawing );
@@ -121,5 +136,17 @@ int main( int argc, char** argv )
     }
     // close the video
     // called by the destructor, unnecessary to do this explicitly
+    frame.release();
+    resizedFrame.release();
+    medianFrame.release();
+    bgFgFrame.release();
+    bgBgFrame.release();
+    thresFrame.release();
+    medianFrame2.release();
+    pyrDwn.release();
+    dilate.release();
+    pyrUp.release();
+    copiedFrame.release();
+    overlayFrame.release();
     capture.release();
 }
