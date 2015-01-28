@@ -1,4 +1,4 @@
-function In = RemoveFogByRetinex( f, flag )
+function In = RemoveFogByRetinex( f, flag, outputfilename )
 %RemoveFogByRetinex
 %   Detailed explanation goes here
 if nargin < 2
@@ -112,7 +112,7 @@ In = cat(3, cr, cg, cb);
 if flag
     figure;
     subplot(2, 2, 1); imshow(f); title('Original', 'FontWeight', 'Bold');
-    subplot(2, 2, 2); imshow(In); title('Results', 'FontWeight', 'Bold');
+    subplot(2, 2, 2); imshow(In); title('Results', 'FontWeight', 'Bold'); imwrite(In, outputfilename);
     Q = rgb2gray(f);
     W = rgb2gray(In);
     subplot(2, 2, 3); imhist(Q, 64); title('Original Histogram', 'FontWeight', 'Bold');
